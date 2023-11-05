@@ -69,6 +69,7 @@ def onAppStart(app):
     app.soapbar = CMUImage(app.soapbar)
     app.timecountbrush = 0
     app.timecountshower = 0
+    app.timecountrotating = 0
     app.brushing = False
     app.showering = False
     app.skin = True
@@ -84,6 +85,8 @@ def onAppStart(app):
     app.frog_bg = CMUImage(app.frog_bg)
     app.frog_whisk = Image.open('food_whisk.PNG')
     app.frog_whisk = CMUImage(app.frog_whisk)
+    app.frogrot = Image.open('frogrot.PNG')
+    app.frogrot = CMUImage(app.frogrot)
 
     app.box1, app.box2, app.box3 = False, False, False
 
@@ -95,6 +98,15 @@ def onAppStart(app):
 
     app.stickers = Image.open('stickerfrog.png')
     app.stickers = CMUImage(app.stickers)
+    app.rainbow = Image.open('rainbow.png')
+    app.rainbow = CMUImage(app.rainbow)
+
+    app.oneAngle = 0
+    app.twoAngle = 0
+    app.frogcx1 = 0
+    app.frogcx2 = 1000
+    app.rain = False
+    app.rotating = 0
     
 def distance(x0, y0, x1, y1):
     return ((x1 - x0)**2 + (y1 - y0)**2)**0.5
@@ -104,10 +116,32 @@ def onStep(app):
         app.angle += 5
     elif app.brushing == True:
         app.timecountbrush+=1
+        if app.timecountbrush > 150:
+            app.brushing = False
+            app.timecountbrush = 0
     elif app.showering == True:
         app.timecountshower+=1
+        if app.timecountshower > 150:
+            app.showering = False
+            app.timecountshower = 0
     elif app.cooking == True:
         app.timecountcooking+=1
+        if app.timecountcooking> 150:
+            app.cooking= False
+            app.timecountcooking = 0
+    elif app.rotating == True:
+        isrotating = True
+        if isrotating:
+            app.oneAngle += 4
+            app.twoAngle -= 4
+            app.frogcx1 += 4
+            app.frogcx2 -=4
+            if distance(app.frogcx1, 400, app.frogcx2, 400) <= (500 + 500):
+                isrotating = False
+                app.rain = True
+            if app.timecountrotating> 150:
+                    app.rotating= False
+                    app.timecountrotating = 0
     # newDay(app)
 
 def getCurrTasks(app):
@@ -194,10 +228,13 @@ def onMousePress(app, mouseX, mouseY):
             app.currAnimation = app.allTasks[row][col]
             row2, col2 = app.currTasks[1]
             app.currAnimation2 = app.allTasks[row2][col2]
-            print(app.currAnimation)
+            row3, col3 = app.currTasks[2]
+            app.currAnimation3 = app.allTasks[row3][col3]
+        
             if app.currAnimation == "brush your teeth":
+                print('wow')
                 app.brushing = True
-            if app.currAnimation == "skincare":
+            elif app.currAnimation == "skincare":
                 app.skin = False
             elif app.currAnimation == "shower" or "bubbly bath":
                 app.showering = True
@@ -210,13 +247,15 @@ def onMousePress(app, mouseX, mouseY):
         if mouseY >= 710 and mouseY <= 740:
             app.checkListColors[1] = "green"
             app.box2 = True
-            app.currAnimation = app.currTasks[1]
+            app.currAnimation2 = app.currTasks[1]
             if app.currAnimation2 == "get booba" or "drink wotta" or "make le pizza" or "make hot choccy!!":
                 app.cooking = True
         if mouseY >= 760 and mouseY <= 790:
             app.checkListColors[2] = "green"
             app.box3 = True
-            app.currAnimation = app.currTasks[2]
+            app.currAnimation3 = app.currTasks[2]
+            if app.currAnimation2 == "sing" or "play games"or "talk to your friends (not about school >:()"or "watch a show":
+                app.rotating = True
         if app.box1 == app.box2 == app.box3 == True and mouseX >= 1100 and mouseX <= 1250 and mouseY >= 750 and mouseY <= 800:
             app.newDay = True
             app.box1, app.box2, app.box3 = False, False, False
@@ -254,6 +293,17 @@ def cooking(app):
         drawImage(app.frog_whisk,app.whiskcx,app.whiskcy, align='center')
     else:
         cooking = False
+        
+def rotatingFrogs(app):
+    rotating = True
+    if rotating == True and app.timecountrotating < 150:
+        drawImage(app.frogrot,app.frogcx1,400,rotateAngle = app.oneAngle)
+        drawImage(app.frogrot,app.frogcx2,400,rotateAngle = app.twoAngle)
+        if app.rain == True:
+            drawImage(app.rainbow,600,200,align = 'center')
+    else:
+        app.rain = False
+        rotating = False
 
 def newDay(app):
     if app.newDay == True:
@@ -291,6 +341,8 @@ def redrawAll(app):
     if app.box3 == True:
             drawLine(20, 750, 50, 780, fill = "green")
             drawLine(50, 750, 20, 780, fill = "green")
+            if app.rotating == True:
+                rotatingFrogs(app)
     if app.showInfo:
         showInfo(app)
     if app.showStickers:
