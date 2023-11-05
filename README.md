@@ -1,1 +1,3 @@
-temporary readme! will be updated later :)
+"A Hoppy Day!" is a game/self-care app that reminds players to take care of themselves throughout their day. Each day, the player is provided with three small tasks to complete from different self care categories. Tasks include drinking water,  getting boba, talking to friends, and many more. The goal of the game is for players to take a step away from their busy lives to spend some time with happy digital frogs. This game would help support students at CMU through their heavy homework loads. 
+
+Modules that were used to support the game include the Python Image Library, PIL import Image, and Random. 
